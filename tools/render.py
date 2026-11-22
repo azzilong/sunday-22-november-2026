@@ -138,24 +138,26 @@ REGIONS = [  # (name, count, colour)
     ("GLOBAL", 1, (85, 95, 107)),
 ]
 
-STATS = [  # (big, caption)
+STATS = [  # (big, caption) — the current top-20 modal set (ranks 2, 10,
+    # 11, 19); 110 + 7+ come from our own Ukraine mid story (#5).
     ("~200", "nations at the COP31 talks"),
     ("03:00", "GMT, objections due"),
     ("400+", "drones fired at Ukraine"),
+    ("110", "missiles in the same night"),
+    ("7+", "people killed in Kyiv"),
     ("2", "US bases hit in Bahrain"),
-    ("6.7", "magnitude of the Peru quake"),
-    ("11", "killed after the Sinaloa raid"),
 ]
 
 DATE_CHECK = (
-    "Left out as earlier news: the Shenzhen summit (19 Nov) · the Kerch Bridge strikes "
-    "(earlier this week) · Russian missiles landing in Poland (19 Nov) · BepiColombo’s "
-    "Mercury capture (18–21 Nov) · Voyager 1 at one light-day (18 Nov) · Wall Street’s "
-    "slide into correction (20 Nov) · the EU–UK deal (20 Nov) · the ICJ Myanmar ruling "
-    "(19 Nov) · the Kyiv bridge strikes (19 Nov). Not confirmed when drawn: the final "
-    "COP31 text (vote 06:00 GMT) · the Gulf casualty toll · the Las Vegas GP result. "
-    "Dating: the Bahrain strikes began Saturday night, Sparta II was hit Saturday "
-    "morning and still burns, the Peru quake was first reported 21 Nov 00:09 UTC."
+    "Wires read up to 01:00 UTC, Sunday 22 November 2026. Every story here "
+    "was reported, or was still developing, on 22 November in at least one "
+    "time zone. Left out as earlier news: the Shenzhen summit (19 Nov) · "
+    "the Kerch Bridge strikes (earlier this week) · Russian missiles in "
+    "Poland (19 Nov) · BepiColombo’s Mercury capture (18–21 Nov). Not "
+    "confirmed when drawn: the final COP31 text (06:00 GMT vote) · the Gulf "
+    "casualty toll · the Las Vegas GP result. Dating: Bahrain strikes began "
+    "Saturday night; Sparta II was hit Saturday morning and still burns; "
+    "the Peru quake was first reported 21 Nov 00:09 UTC."
 )
 
 FOOTER = (
@@ -204,31 +206,58 @@ def flame(draw, cx, base, h, w, col):
 
 # ---------------------------------------------------------------- scenes
 def scene_table(d, x, y, w, h):
-    """COP31: conference table, flags, globe, clock."""
+    """COP31: conference table, seated delegates, flags, globe, clock."""
     d.rectangle([x, y, x + w, y + h], fill=(178, 205, 205))
     d.ellipse([x + 8, y + 8, x + 58, y + 58], fill=(46, 120, 170))
     d.ellipse([x + 20, y + 18, x + 46, y + 48], fill=(110, 190, 110))
-    d.rectangle([x, y + h - 34, x + w, y + h], fill=(120, 82, 52))
+    # Thermometer, top right (the lead badge above it carries the 06:00 time).
+    d.rectangle([x + w - 38, y + 28, x + w - 30, y + 56], fill=(240, 240, 235),
+                outline=(60, 50, 40))
+    d.rectangle([x + w - 38, y + 44, x + w - 30, y + 56], fill=(164, 31, 31))
+    d.ellipse([x + w - 42, y + 52, x + w - 26, y + 66], fill=(164, 31, 31))
+    # Flags on poles behind the table.
     for i, c in enumerate([(164, 31, 31), (31, 58, 110), (46, 107, 52),
                            (192, 122, 18), (107, 74, 138)]):
         fx = x + 20 + i * (w - 40) // 4
         d.line([(fx, y + h - 62), (fx, y + h - 34)], fill=(60, 50, 40), width=2)
         d.rectangle([fx, y + h - 62, fx + 18, y + h - 48], fill=c)
-    d.ellipse([x + w - 52, y + 10, x + w - 14, y + 48], outline=(60, 50, 40), width=3)
-    d.line([(x + w - 33, y + 29), (x + w - 33, y + 18)], fill=(60, 50, 40), width=2)
-    d.line([(x + w - 33, y + 29), (x + w - 24, y + 29)], fill=(60, 50, 40), width=2)
+    # Seated delegates between the flags, heads above the table edge.
+    for i, c in enumerate([(90, 60, 40), (60, 60, 60), (120, 40, 30),
+                           (40, 70, 90)]):
+        cx = x + 20 + (i * 2 + 1) * (w - 40) // 8
+        d.ellipse([cx - 7, y + h - 56, cx + 7, y + h - 42], fill=c)
+        d.polygon([(cx - 11, y + h - 34), (cx - 7, y + h - 44),
+                   (cx + 7, y + h - 44), (cx + 11, y + h - 34)], fill=c)
+    # Table + papers on it.
+    d.rectangle([x, y + h - 34, x + w, y + h], fill=(120, 82, 52))
+    d.rectangle([x + 40, y + h - 30, x + 66, y + h - 22], fill=(245, 245, 240))
+    d.rectangle([x + 180, y + h - 28, x + 202, y + h - 20], fill=(245, 245, 240))
 
 
 def scene_flames(d, x, y, w, h):
-    """Bahrain: industrial site burning at night."""
+    """Bahrain: industrial site burning at night, tanker on the water."""
     d.rectangle([x, y, x + w, y + h], fill=(24, 28, 52))
+    # Stars + moon.
+    for sx, sy in [(x + 30, y + 12), (x + 90, y + 8), (x + 150, y + 16),
+                   (x + 210, y + 10), (x + 250, y + 20)]:
+        d.ellipse([sx, sy, sx + 2, sy + 2], fill=(220, 220, 200))
+    d.ellipse([x + 150, y + 8, x + 190, y + 48], fill=(240, 200, 90))
+    # Smoke plumes above the flames.
+    for sx, sy, sw in [(x + 28, y + 2, 26), (x + 82, y + 6, 22),
+                       (x + w - 56, y + 0, 28)]:
+        d.ellipse([sx, sy, sx + sw, sy + 14], fill=(110, 110, 116))
+        d.ellipse([sx + 6, sy + 8, sx + sw - 4, sy + 20], fill=(90, 90, 96))
     d.rectangle([x + 10, y + h - 52, x + 60, y + h], fill=(52, 52, 66))
     d.rectangle([x + 70, y + h - 40, x + 120, y + h], fill=(44, 44, 58))
     d.rectangle([x + w - 70, y + h - 58, x + w - 10, y + h], fill=(52, 52, 66))
     d.rectangle([x + 130, y + h - 70, x + 138, y + h], fill=(70, 70, 84))
-    for cx, hh, ww in [(40, 46, 26), (95, 34, 20), (x + w - 40 - x, 52, 24)]:
+    for cx, hh, ww in [(40, 40, 26), (95, 32, 20), (w - 40, 44, 24)]:
         flame(d, x + cx, y + h - 50, hh, ww, (235, 110, 30))
-    d.ellipse([x + w - 60, y + 10, x + w - 20, y + 50], fill=(240, 200, 90))
+    # Waterfront: sea strip + tanker at the foot of the site.
+    d.rectangle([x, y + h - 14, x + w, y + h], fill=(30, 70, 100))
+    d.rectangle([x + 150, y + h - 30, x + 232, y + h - 14], fill=(28, 28, 32))
+    d.rectangle([x + 182, y + h - 42, x + 206, y + h - 30], fill=(140, 40, 32))
+    d.rectangle([x + 150, y + h - 34, x + 232, y + h - 30], fill=(60, 60, 64))
 
 
 def scene_quake(d, x, y, w, h):
@@ -240,12 +269,14 @@ def scene_quake(d, x, y, w, h):
               fill=(96, 78, 54))
     d.polygon([(x + w * 0.56, y + 22), (x + w * 0.62, y + 8), (x + w * 0.68, y + 22)],
               fill=(245, 245, 240))
-    d.rectangle([x + 8, y + h - 52, x + w - 8, y + h - 26], fill=(255, 255, 255),
+    d.polygon([(x + w * 0.82, y + h), (x + w * 0.9, y + 30), (x + w, y + h)],
+              fill=(110, 88, 60))
+    d.rectangle([x + 8, y + h - 56, x + w - 8, y + h - 20], fill=(255, 255, 255),
                 outline=(120, 110, 92))
     pts = []
     for i in range(21):
         px = x + 12 + i * (w - 24) // 20
-        py = y + h - 39 + (0 if i % 4 else -9 if i % 8 == 4 else 7 if i % 8 == 0 else 0)
+        py = y + h - 38 + (0 if i % 4 else -12 if i % 8 == 4 else 10 if i % 8 == 0 else 0)
         pts.append((px, py))
     d.line(pts, fill=(164, 31, 31), width=2)
 
@@ -276,6 +307,8 @@ def scene_drones(d, x, y, w, h):
     for cx, cy in [(x + w * 0.2, y + 16), (x + w * 0.55, y + 10), (x + w * 0.8, y + 22)]:
         d.ellipse([cx - 3, cy - 3, cx + 3, cy + 3], fill=(240, 200, 90))
         d.line([(cx, cy + 4), (cx, cy + 12)], fill=(240, 200, 90), width=1)
+        # Drone trail streaking down-left behind the dot.
+        d.line([(cx - 16, cy - 10), (cx - 3, cy - 1)], fill=(240, 200, 90), width=2)
     flame(d, x + w * 0.35, y + h * 0.78, int(h * 0.30), 18, (235, 110, 30))
     flame(d, x + w * 0.72, y + h * 0.72, int(h * 0.24), 14, (240, 160, 40))
 
@@ -437,8 +470,19 @@ def draw_stats(d):
                    fill=RULE, width=1)
 
 
+def draw_timeline(d, y):
+    """One-line UTC timeline of the day's key moments."""
+    rule(d, X0, X1, y, fill=RULE, w=1)
+    text(d, (X0, y + 4), "SUNDAY IN UTC", F(SANS_B, 9), fill=RED_DARK)
+    times = ("00:09  Peru quake first reported  ·  03:00  COP31 objections due  ·  "
+             "04:00  Las Vegas GP lights out  ·  06:00  COP31 approval vote  ·  "
+             "09:00  Hong Kong polls open")
+    text(d, (X0 + 108, y + 4), times, F(SANS, 9), fill=INK)
+    rule(d, X0, X1, y + 17, fill=RULE, w=1)
+
+
 def draw_regions(d):
-    y0 = 194
+    y0 = 210
     total = sum(c for _, c, _ in REGIONS)
     f = F(SANS_B, 11)
     # Every segment is at least wide enough for its own label; the remaining
@@ -457,14 +501,24 @@ def draw_regions(d):
         x += wseg
 
 
+# Data badge on each lead illustration (top right), as in the top entries.
+LEAD_BADGES = {1: "06:00 GMT", 2: "2 BASES", 3: "M 6.7"}
+
+
 def draw_lead_card(d, story, x, y, w):
     num, kicker, loc, head, deck, src, scene, _reg = story
-    ih = 104  # illustration height
+    ih = 96  # illustration height
     SCENES[scene](d, x, y, w, ih)
+    badge = LEAD_BADGES[num]
+    bf = F(SANS_B, 10)
+    bw = int(bf.getlength(badge)) + 14
+    d.rectangle([x + w - bw - 6, y + 6, x + w - 6, y + 24], fill=(255, 255, 255),
+                outline=(120, 110, 92))
+    text(d, (x + w - 6 - bw // 2, y + 9), badge, bf, fill=INK, anchor="ma")
     d.rectangle([x, y + ih - 20, x + w, y + ih], fill=RED)
     text(d, (x + 8, y + ih - 16), kicker, F(SANS_B, 12), fill=(255, 255, 255))
     yy = y + ih + 8
-    text(d, (x, yy), loc, F(SANS_B, 11), fill=RED_DARK)
+    text(d, (x, yy), "%d %s" % (num, loc), F(SANS_B, 11), fill=RED_DARK)
     yy += 16
     for ln in wrap(head, F(SERIF_B, 19), w):
         text(d, (x, yy), ln, F(SERIF_B, 19), fill=INK)
@@ -480,10 +534,15 @@ def draw_mid_card(d, story, x, y, w):
     num, kicker, loc, head, deck, src, scene, _reg = story
     ih = 48
     SCENES[scene](d, x, y, w, ih)
+    # Numbered badge, top right — matches the map pins.
+    d.ellipse([x + w - 22, y + 4, x + w - 6, y + 20], fill=RED,
+              outline=(255, 255, 255))
+    text(d, (x + w - 14, y + 5), str(num), F(SANS_B, 10), fill=(255, 255, 255),
+         anchor="ma")
     d.rectangle([x, y + ih - 16, x + w, y + ih], fill=RED)
     text(d, (x + 6, y + ih - 13), kicker, F(SANS_B, 9), fill=(255, 255, 255))
     yy = y + ih + 4
-    text(d, (x, yy), loc, F(SANS_B, 9), fill=RED_DARK)
+    text(d, (x, yy), "%d %s" % (num, loc), F(SANS_B, 9), fill=RED_DARK)
     yy += 11
     for ln in wrap(head, F(SERIF_B, 13), w)[:2]:
         text(d, (x, yy), ln, F(SERIF_B, 13), fill=INK)
@@ -495,10 +554,11 @@ def draw_mid_card(d, story, x, y, w):
 
 
 # Pinned places on the map (fractional coords on the map panel).
+# Spread so no two pins in the Europe / Middle East cluster touch.
 PINS = [
-    (1, 0.52, 0.30), (2, 0.60, 0.42), (3, 0.22, 0.62), (4, 0.50, 0.16),
-    (5, 0.55, 0.24), (6, 0.12, 0.48), (7, 0.56, 0.27), (8, 0.62, 0.44),
-    (9, 0.64, 0.38), (10, 0.58, 0.40), (11, 0.82, 0.38), (12, 0.08, 0.42),
+    (1, 0.51, 0.33), (2, 0.63, 0.46), (3, 0.22, 0.62), (4, 0.48, 0.12),
+    (5, 0.54, 0.19), (6, 0.12, 0.48), (7, 0.59, 0.28), (8, 0.68, 0.55),
+    (9, 0.68, 0.35), (10, 0.56, 0.43), (11, 0.82, 0.38), (12, 0.07, 0.40),
     (13, 0.76, 0.42),
 ]
 
@@ -524,9 +584,9 @@ def draw_map(d, x, y, w, h):
                (x + 296, y + 156), (x + 278, y + 142)], fill=land)
     for num, fx, fy in PINS:
         px, py = x + int(fx * w), y + 22 + int(fy * (h - 30))
-        d.ellipse([px - 9, py - 9, px + 9, py + 9], fill=RED,
+        d.ellipse([px - 8, py - 8, px + 8, py + 8], fill=RED,
                   outline=(255, 255, 255))
-        text(d, (px, py - 7), str(num), F(SANS_B, 10), fill=(255, 255, 255),
+        text(d, (px, py - 6), str(num), F(SANS_B, 9), fill=(255, 255, 255),
              anchor="ma")
 
 
@@ -551,13 +611,13 @@ def draw_also_on(d, x, y, w, h):
 
 
 def draw_date_check(d, y):
-    h = 54
+    h = 56
     d.rectangle([X0, y, X1, y + h], outline=RED, width=2)
     text(d, (X0 + 8, y + 6), "DATE CHECK", F(SANS_B, 11), fill=RED_DARK)
     yy = y + 6
     for ln in wrap(DATE_CHECK, F(SANS, 10), CW - 100):
         text(d, (X0 + 92, yy), ln, F(SANS, 10), fill=INK)
-        yy += 13
+        yy += 12
 
 
 def render():
@@ -566,23 +626,24 @@ def render():
     draw_kicker(d)
     draw_masthead(d)
     draw_stats(d)
+    draw_timeline(d, 190)
     draw_regions(d)
     # Leads: 3 cards across.
     lw = (CW - 24) // 3
-    ly = 222
+    ly = 238
     for i, story in enumerate(LEADS):
         draw_lead_card(d, story, X0 + i * (lw + 12), ly, lw)
     # Mids: 2 rows of 5.
     mw = (CW - 48) // 5
-    my = 458
+    my = 468
     for r in range(2):
         for c in range(5):
             story = MIDS[r * 5 + c]
             draw_mid_card(d, story, X0 + c * (mw + 12), my + r * 136, mw)
     # Map + ALSO ON.
-    my2 = 738
-    draw_map(d, X0, my2, 310, 176)
-    draw_also_on(d, X0 + 322, my2, CW - 322, 176)
+    my2 = 746
+    draw_map(d, X0, my2, 310, 168)
+    draw_also_on(d, X0 + 322, my2, CW - 322, 168)
     # Date check + footer.
     draw_date_check(d, 922)
     text(d, (X0, 984), FOOTER, F(SANS, 9), fill=GREY)
